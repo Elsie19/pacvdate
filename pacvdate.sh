@@ -100,7 +100,7 @@ unset error_sum
 
 mkdir -p download
 if [[ "${url##*.}" == "git" ]]; then
-	if ! git clone --depth=1 "${url}" download/; then
+	if ! git clone -q --depth=1 "${url}" download/; then
 		write_results "download" "FAILURE|CRITICAL" "misc_reports"
 	else
 		write_results "download" "SUCCESS|CRITICAL" "misc_reports"
