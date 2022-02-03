@@ -105,7 +105,7 @@ if [[ "${url##*.}" == "git" ]]; then
 	else
 		write_results "download" "SUCCESS|CRITICAL" "misc_reports"
 	fi
-elif ! wget "${url}" -P download/; then
+elif ! wget -q "${url}" -P download/; then
 	write_results "download" "FAILURE|CRITICAL" "misc_reports"
 else
 	write_results "download" "SUCCESS|CRITICAL" "misc_reports"
