@@ -99,12 +99,19 @@ fi
 unset error_sum
 
 mkdir -p download
-if ! wget "${url}" -P download/; then
+if [[ "${url##*.}" == "git" ]]; then
+	if ! git clone --depth=1 "${url}" download/; then
+		write_results "download" "FAILURE|CRITICAL" "misc_reports"
+	else
+		write_results "download" "SUCCESS|CRITICAL" "misc_reports"
+	fi
+elif ! wget "${url}" -P download/; then
 	write_results "download" "FAILURE|CRITICAL" "misc_reports"
 else
 	write_results "download" "SUCCESS|CRITICAL" "misc_reports"
 fi
 
+# hash checking
 if [[ "$(get_output "download" "misc_reports" | cut -d'|' -f1)" == "SUCCESS" ]]; then
 	# check if hash exists, and if so, check against download, and if not, leave as is
 	if [[ -z "${hash}" ]]; then
@@ -119,8 +126,15 @@ if [[ "$(get_output "download" "misc_reports" | cut -d'|' -f1)" == "SUCCESS" ]];
 else
 	write_results "hash" "NOTNEEDED|NOTCRITICAL" "misc_reports"
 fi
+rm -rf download/
 
-rm -r download/
+if [[ "$(type -t pkgver)" == "function" ]]; then
+	if [[ "$(pkgver | wc -l)" -gt 1 ]]; then
+		write_results "pkgver" "FAILURE|MULTIPLEHEADS" "misc_reports"
+	else
+		write_results "pkgver" "SUCCESS|CRITICAL" "misc_reports"
+	fi
+fi
 banner "Variable/array/function checking"
 gen_report
 banner "Misc reports"
